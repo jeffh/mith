@@ -111,6 +111,21 @@
   ([value] (clj->js (m/parsePath value))))
 
 (defn element
+  "Creates a virtual DOM element or instantiates a virtual DOM component.
+
+   NOTE: it's recommended to use the [[html]] macro to easily generate html
+   hierarchies in hiccup-like syntax.
+
+   Parameters:
+    - el can be any value tag name plus any '.' prefixed classnames and id
+    - attrs are a map of any attributes to add to the element or data to pass to the component
+    - child & body are child elements to the specified element
+
+   Example:
+
+     (element :div.class#id {:class \"bar\"} \"text\") // => <div class=\"class bar\" id=\"id\">text</div>
+
+   "
   ([el] (m el))
   ([el attrs] (m el (clj->js attrs)))
   ([el attrs child & body] (m el (clj->js attrs) (to-array (into [child] body)))))
@@ -152,7 +167,7 @@
 (defn- reactive-view [view-fn dirty-ratom watches]
   (fn [& args]
     (ratom/run-in-reaction #(apply view-fn args) watches view-fn #(do (reset! dirty-ratom true)
-                                                               (m/redraw)))))
+                                                                      (m/redraw)))))
 
 (defn component
   "Creates a component that supports reactive atoms to determine if re-rendering is needed.
