@@ -2,14 +2,15 @@
   (:require [net.jeffhui.mith :as mith :refer [html]]
             [net.jeffhui.mith.ratom :as ratom]))
 
-(def t (ratom/ratom (js/Date.)))
-(defonce iv (js/setInterval #(reset! t (js/Date.)) 1000))
+(def t (ratom/ratom (str (js/Date.))))
+(defonce iv (js/setInterval #(reset! t (str (js/Date.))) 500))
 
 (def tt (ratom/reaction #(str (js/Date.))))
 
 (def header
   (mith/component
-   #(html [:h1 (str @t) "YOOO" @tt])))
+   {:view #(html [:h1 @t "YO" @tt])
+    #_#_:onupdate (fn [_] (js/console.log "header update"))}))
 
 (defn counter [vnode]
   (let [cnt (ratom/ratom 0)]
@@ -18,7 +19,7 @@
               (html [:div
                      [:p "Count: " @cnt]
                      [:button {:onclick (fn [_] (swap! cnt inc))} "Increment Count"]]))
-      :onupdate (fn [vnode] (js/console.log "UPDATED DOM"))})))
+      #_#_:onupdate (fn [vnode] (js/console.log "UPDATED DOM"))})))
 
 (defn root-view []
   (html [:div.foo#baz [:h1 "hello"] [header]

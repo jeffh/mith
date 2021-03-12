@@ -5,7 +5,9 @@
 (def ^:private ^:dynamic *ratom-context*)
 
 (defn- defer-action [f]
-  (js/setTimeout f 16))
+  (if js/requestAnimationFrame
+    (js/requestAnimationFrame (fn [_] (f)))
+    (js/setTimeout f 16)))
 
 (defonce ^:private react-queue nil)
 (declare flush!)
@@ -73,14 +75,13 @@
   IAtom
 
   IReactive
-  (_update [this]
+  (_update [_]
     (let [old @at
           new (try (act)
                    (catch :default e
                      (js/console.error "error in reaction" e)))]
       (when (or (not (identical? old new))
                 dirty)
-        (when (true? dirty) (set! (.-dirty this) false))
         (reset! at new))))
 
   IWatchable
@@ -92,7 +93,7 @@
   (-meta [_] (meta at))
 
   IWithMeta
-  (-with-meta [_ new-meta] (RAtom. (-with-meta at new-meta)))
+  (-with-meta [_ new-meta] (Reaction. act (-with-meta at new-meta) dirty))
 
   IDeref
   (-deref [this]
@@ -123,10 +124,11 @@
     (js/setInterval #(reset! a (f)) interval)
     a))
 
-(defn run-in-reaction [f key reaction]
+(defn run-in-reaction [f derefs key reaction]
   (let [^clj r #js{}
         res (capturing-deref r f)]
     (when (.-captured r)
+      (swap! derefs into (.-captured r))
       (doseq [ref (.-captured r)]
         (add-watch ref key (fn [_ _ old new]
                              (when (not= old new)

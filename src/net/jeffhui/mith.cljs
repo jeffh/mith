@@ -149,9 +149,9 @@
                  :extract         extract
                  :useBody         body?}))
 
-(defn- reactive-view [view-fn dirty-ratom]
+(defn- reactive-view [view-fn dirty-ratom watches]
   (fn [& args]
-    (ratom/run-in-reaction #(apply view-fn args) view-fn #(do (reset! dirty-ratom true)
+    (ratom/run-in-reaction #(apply view-fn args) watches view-fn #(do (reset! dirty-ratom true)
                                                                (m/redraw)))))
 
 (defn component
@@ -162,17 +162,28 @@
    "
   [opts]
   (let [dirty (atom true)
+        watches (atom [])
         onbeforeupdate (fn [_]
                          (let [d @dirty]
                            (when d (reset! dirty false))
                            d))]
     (if (fn? opts)
-      #js{:view           (reactive-view opts dirty)
-          :onbeforeupdate onbeforeupdate}
-      #js{:view           (reactive-view (:view opts) dirty)
+      #js{:view           (reactive-view opts dirty watches)
+          :onbeforeupdate onbeforeupdate
+          :onremove       (fn [& _]
+                            (doseq [ref @watches]
+                              (remove-watch ref opts))
+                            (reset! watches nil))}
+      #js{:view           (reactive-view (:view opts) dirty watches)
           :oninit         (:init opts)
           :oncreate       (:oncreate opts)
           :onbeforeupdate (or (:onbeforeupdate opts) onbeforeupdate)
           :onupdate       (:onupdate opts)
-          :onbeforeremove (:onbeforeupdate opts)
-          :onremove       (:onremove opts)})))
+          :onremove       (fn [& args]
+                            (let [v (:view opts)]
+                              (doseq [ref @watches]
+                                (remove-watch ref v))
+                              (reset! watches nil))
+                            (when-let [f (:onremove opts)]
+                              (apply f args)))
+          :onbeforeremove (:onbeforeremove opts)})))
