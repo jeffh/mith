@@ -1,0 +1,11 @@
+{
+    "name": "mith",
+    "version": "0.1.0",
+    "private": true,
+    "devDependencies": {
+        "shadow-cljs": "2.11.19"
+    },
+    "dependencies": {
+        "mithril": "2.0.4"
+    }
+}

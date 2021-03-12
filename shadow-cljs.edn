@@ -1,0 +1,28 @@
+;; shadow-cljs configuration
+{:source-paths
+ ["src"
+  "demo"]
+
+ :dependencies
+ []
+ 
+ :dev-http
+ {8000 "resources/public"}
+
+ :builds
+ {:browser {:target     :browser
+            :asset-path "/js"
+            :output-dir "resources/public/release/js/"
+            :modules    {:main {:entries [net.jeffhui.mith.demo.example]
+                                :init-fn net.jeffhui.mith.demo.example/main}}
+            :dev        {:output-dir       "resources/public/js/"
+                         :compiler-options {:devcards true}
+                         :preloads         [devtools.preload]}
+            :release    {:compiler-options {:optimizations      :advanced
+                                            :infer-externs      :auto
+                                            :output-wrapper     true
+                                            :warnings           {:invalid-arithmetic false}
+                                            :fn-invoke-direct   true
+                                            :output-feature-set :es6
+                                            :shadow-tweaks      true
+                                            :shadow-keywords    true}}}}}

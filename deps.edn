@@ -1,0 +1,3 @@
+{:deps    {org.clojure/clojurescript {:mvn/version "1.10.773"}}
+ :paths   ["src"]
+ :aliases {:dev {:extra-paths ["demo"]}}}
