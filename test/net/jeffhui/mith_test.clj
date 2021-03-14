@@ -34,7 +34,12 @@
     (is (= (m/compile-html 1) 1)))
 
   (testing "Unknown values are pass through an interpreter"
-    (is (= (m/compile-html {:foo :bar}) `(~interp {:foo :bar}))))
+    (are [input expected] (= (m/compile-html input) expected)
+      #{:a :b :c} #{:a :b :c}
+      '(:a :b :c) '(:a :b :c)
+      {:foo :bar} {:foo :bar}
+      [2] [2]
+      `[foo] `(~e foo nil nil)))
 
   (testing "let form"
     (are [input expected] (= (m/compile-html input) expected)

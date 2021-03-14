@@ -3,7 +3,11 @@
 
 (defn compile-html [form]
   (cond
-    (vector? form)
+    (and (vector? form)
+         (or
+          (keyword? (first form))
+          (string? (first form))
+          (symbol? (first form))))
     (let [sec (second form)
           attrs (when (map? sec) sec)
           children (not-empty
@@ -60,8 +64,14 @@
              `(do ~@(butlast (rest form)) ~(compile-html (last form))))
       `(net.jeffhui.mith/interpret-element ~form))
 
-    (string? form) form
-    (number? form) form
+    (or
+     (string? form)
+     (number? form)
+     (map? form)
+     (vector? form)
+     (set? form)
+     (seq? form))
+    form
 
     :else `(net.jeffhui.mith/interpret-element ~form)))
 
