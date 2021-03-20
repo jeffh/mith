@@ -3,8 +3,10 @@
             [net.jeffhui.mith.ratom :as ratom]))
 
 (def t (ratom/ratom (str (js/Date.))))
+;; swapping the atom should trigger mithril draws
 (defonce iv (js/setInterval #(reset! t (str (js/Date.))) 500))
 
+;; this should only react if another ratom needs to be updated
 (def tt (ratom/reaction #(str (js/Date.))))
 
 (def header
@@ -13,6 +15,7 @@
     #_#_:onupdate (fn [_] (js/console.log "header update"))}))
 
 (defn counter [vnode]
+  ;; A method to create local state without triggering lots of unnecessary re-renders
   (let [cnt (ratom/ratom 0)]
     (mith/component
      {:view (fn [_]
