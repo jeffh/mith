@@ -5,7 +5,7 @@
 
  :dependencies
  []
- 
+
  :dev-http
  {8000 "resources/public"}
 
@@ -25,4 +25,9 @@
                                             :fn-invoke-direct   true
                                             :output-feature-set :es6
                                             :shadow-tweaks      true
-                                            :shadow-keywords    true}}}}}
+                                            :shadow-keywords    true}}}
+  :ci      {:target    :browser-test
+            :test-dir  "target/ci"
+            :runner-ns client-test-main
+            :devtools  {:http-port 8001 
+                        :http-root "target/ci"}}}}

@@ -3,6 +3,8 @@
     "version": "0.1.0",
     "private": true,
     "devDependencies": {
+        "mithril-query": "^4.0.0-next.2",
+        "prettier": "^2.2.1",
         "shadow-cljs": "2.11.19"
     },
     "dependencies": {
